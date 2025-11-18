@@ -1,0 +1,265 @@
+{
+  "name": "AutoBlog save to Drive",
+  "nodes": [
+    {
+      "parameters": {
+        "formTitle": "AutoBlog",
+        "formDescription": "Membuat Blog Terbaik dengan cepat!!",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Judul Blog apa yang ingin anda buat??",
+              "placeholder": "Buatkan blog mengenai....",
+              "requiredField": true
+            }
+          ]
+        },
+        "options": {
+          "path": "autoblog"
+        }
+      },
+      "type": "n8n-nodes-base.formTrigger",
+      "typeVersion": 2.2,
+      "position": [
+        -496,
+        -304
+      ],
+      "id": "73e7e1ba-ab87-42dc-b813-ce623b0146c2",
+      "name": "On form submission",
+      "webhookId": "b222c0f8-3f38-4d08-9b1d-d6055b8cec79"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        32,
+        176
+      ],
+      "id": "d61d3175-3703-43db-901f-47c867a55c52",
+      "name": "Google Gemini Chat Model",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "KxGfqDdRA89YeVqv",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json['Judul Blog apa yang ingin anda buat??'] }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "Anda adalah Generator Topik yang sangat terampil, ahli dalam menciptakan ide-ide topik yang menarik, relevan, dan berpotensi viral. Tugas Anda adalah menghasilkan saran topik yang memancing rasa ingin tahu, menarik perhatian pembaca, dan memiliki potensi tinggi untuk mendapatkan engagement.\n\nINSTRUKSI:\n- Buatlah topik yang unik, relevan, dan sesuai dengan tren terkini di bidangnya.\n- Gunakan gaya clickbait yang tetap informatif dan tidak menyesatkan untuk meningkatkan ketertarikan pembaca.\n- Prioritaskan topik yang memiliki pencarian tinggi dan berpotensi meningkatkan trafik organik.\n- Jika diberikan kategori atau niche tertentu, buatlah topik yang spesifik dan bernilai bagi audiens target.\n- Gunakan pertanyaan, atau kata-kata emosional dan provokatif untuk membuat topik lebih menarik.\n- Hindari topik yang terlalu umum atau membosankan—fokus pada sudut pandang yang segar dan tidak biasa.\n\nTUJUAN:\nTujuan Anda adalah menciptakan topik yang tidak hanya menarik perhatian sejak awal, tetapi juga membuat pembaca tertarik untuk membaca hingga akhir.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        -288,
+        -304
+      ],
+      "id": "e52b17d1-d4ed-4f6e-90f3-ed0ec5af60b2",
+      "name": "Topic Generator"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Tolong buatkan saya sebuah outline dengan singkat dan padat tentang topik “{{ $json.output.topic }}” dengan menerapkan Metode Cornell. Bagi outline tersebut menjadi tiga bagian:\n\n1. Catatan Utama (Notes): poin-poin penting, konsep utama, definisi, dan contoh singkat.\n2. Kolom Petunjuk (Cues): kata kunci, pertanyaan, atau pemicu yang merangkum poin-poin di Catatan Utama.\n3. Ringkasan (Summary): rangkuman singkat yang memuat ide pokok keseluruhan.\nGunakan bahasa yang padat, ringkas, dan tambahkan sub-poin atau penomoran untuk memudahkan penelusuran. Terima kasih.\n",
+        "options": {
+          "systemMessage": "Anda adalah Outline Generator yang menerapkan Metode Cornell dalam menyusun kerangka (outline) konten. Anda mampu:\n\n- Memecah informasi menjadi tiga komponen utama sesuai Metode Cornell: Catatan Utama (Notes), Kolom Petunjuk (Cues), dan Ringkasan (Summary).\n- Menggunakan bahasa yang lugas, jelas, dan padat.\n- Menghasilkan kerangka yang terstruktur untuk memudahkan pembelajaran, pemahaman, dan pengingatan informasi.\n\n----\n\nINSTRUKSI\n- Gunakan Metode Cornell dalam menyajikan outline:\n- Catatan Utama (Notes): Rincian poin-poin penting, data, atau ide utama.\n- Kolom Petunjuk (Cues): Kata kunci, pertanyaan, atau pemantik yang merujuk ke bagian catatan utama.\n- Ringkasan (Summary): Rangkuman singkat yang mencakup ide pokok keseluruhan outline.\n- Setiap bagian dalam outline harus disusun secara hierarkis dan logis agar mudah dibaca dan dipahami.\n- Berikan level heading (misalnya, I, II, III atau H1, H2, H3) untuk menegaskan struktur outline jika diperlukan.\n- Tampilkan poin-poin secara padat. Berikan contoh singkat agar semakin jelas.\n\n----\n\nTUJUAN\n- Membantu pengguna menyusun kerangka pembelajaran atau materi secara efektif.\n- Memudahkan pengguna dalam meninjau kembali materi melalui tampilan yang ringkas dan terorganisir.\n- Meningkatkan daya ingat dan pemahaman dengan menitikberatkan pada poin kunci dan rangkuman singkat.\n\n----\n\nEXAMPLE:\n# OUTLINE: CARA REVOLUSIONER AI MENGUBAH PENDIDIKAN ANAK INDONESIA\n\n## CATATAN UTAMA (NOTES)\n\n### I. Pendahuluan: AI dalam Lanskap Pendidikan Indonesia\n   A. Definisi AI dalam konteks pendidikan\n   B. Status adopsi AI di sekolah-sekolah Indonesia\n   C. Potensi transformasi sistem pendidikan nasional\n\n### II. 7 Cara Revolusioner AI dalam Pendidikan Indonesia\n   A. Chatbot sebagai Asisten Guru\n      1. Pemberian jawaban instan untuk pertanyaan siswa\n      2. Dukungan pembelajaran 24/7\n      3. Contoh: Ruangguru AI, Zenius AI Tutor\n\n\n## KOLOM PETUNJUK (CUES)\n\n* Apa definisi AI dalam pendidikan?\n* Bagaimana status adopsi AI di Indonesia?\n* Bagaimana chatbot membantu guru?\n\n## RINGKASAN (SUMMARY)\n\nAI telah menghadirkan tujuh transformasi revolusioner dalam pendidikan Indonesia melalui chatbot asisten, personalisasi pembelajaran, analitik data, perluasan akses pendidikan ke daerah terpencil, alat bantu bahasa, otomatisasi penilaian, dan pendidikan inklusif.\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        64,
+        -304
+      ],
+      "id": "8c5924dd-9afd-4715-ab69-7bdb9318c173",
+      "name": "Outline Generator"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n\t\"topic\": \"topic disini adalah hasil generate\"\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        -32,
+        -128
+      ],
+      "id": "b1caff48-7170-4c84-b7c8-a1d8b42e8b6b",
+      "name": "Structured Output Parser"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Buatkan artikel blog dengan panjang maksimal 1500 kata sesuai dengan topik dan outline yang diberikan dibawah.\n\ntopik: {{ $('Topic Generator').item.json.output.topic }}\n\noutline: {{ $json.output }}\n\nKRITERIA ISI ARTIKEL:\n- Setiap bagian harus memiliki **paragraf pembuka yang kuat** dan informasi yang jelas.\n- Jika relevan, gunakan **bullet points, daftar bernomor, atau tabel** untuk meningkatkan keterbacaan.\n- Tambahkan **contoh, fakta, atau data pendukung** untuk memperkuat isi artikel.\n- Gunakan gaya bahasa **mengalir, engaging, dan mudah dipahami**.\n- Akhiri dengan kesimpulan yang kuat, rangkuman poin-poin utama, dan ajakan bagi pembaca untuk berkomentar, berlangganan, atau membagikan artikel.\n- Konten harus menarik, berbobot, dan tidak membosankan.\n\n---\n\n**OUTPUT FORMAT:**\n- Kembalikan output HANYA dalam format JSON.\n- PASTIKAN tidak ada teks lain, komentar, atau karakter tambahan di luar blok JSON.\n- Struktur JSON harus **persis** seperti contoh berikut, dengan semua properti yang ada:\n```json\n{\n    \"article\": {\n        \"title\": \"Pilihan Judul Artikel Anda yang Relevan dan Menarik\",\n        \"body_markdown\": \"Isi artikel lengkap dalam format Markdown standar. Gunakan sintaks Markdown seperti # untuk heading, ** untuk bold, * untuk italic, - untuk daftar. HINDARI PENGGUNAAN TAG HTML eksplisit seperti <h1>, <h2>, <p>, <li>, <img>, <figure>, <br>, dll. Pastikan ini adalah string panjang dan tidak mengandung karakter kutip ganda (\\\") yang tidak di-escape (\\\\\\\" atau \\\\u0022).\",\n        \"published\": false, // HARUS berupa nilai boolean (true atau false), BUKAN string \\\"true\\\" atau \\\"false\\\".\n        \"series\": \"Nama Seri Artikel (jika tidak ada seri, gunakan null atau string kosong \\\"\\\")\",\n        \"main_image\": \"URL gambar utama yang relevan dan dapat diakses publik. Contoh: [https://images.unsplash.com/photo-12345.jpg](https://images.unsplash.com/photo-12345.jpg) (JANGAN GUNAKAN NAMA FILE LOKAL, URL CONTOH SEPERTI example.com, ATAU PLACEHOLDER GENERIK SEPERTI placeholder.com)\",\n        \"description\": \"Meta deskripsi singkat dan menarik untuk SEO (maks. 160 karakter).\",\n        \"tags\": \"tag1, tag2, tag3\" // Daftar tag dipisahkan koma, sebagai sebuah string tunggal.\n    }\n}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=Anda adalah Blog Content Expert sekaligus pakar SEO dengan gaya penulisan yang lugas, praktis, dan edukatif. Anda menulis dalam nada yang jelas dan faktual, lebih menekankan pada ‘cara’, ‘apa’, dan ‘mengapa’ daripada narasi.\n\n1. **Menulis Pengantar yang Menarik**\n    - Buat pengantar blog untuk audiens dari dunia pendidikan: guru, dosen, kepala sekolah, pengawas, ketua yayasan, rektor yang membuka perhatian pembaca (Strong Hook), menjelaskan nilai yang mereka dapatkan (Value Proposition), dan menjaga nada agar sederhana serta ramah. Pertimbangkan menambahkan ringkasan singkat (TL;DR) pada akhir pengantar jika diperlukan.\n\n2. **Lanjutkan dengan Judul dan Artikel**\n    - Beri judul singkat sesuai topik: {{ $('Topic Generator').item.json.output }}, dan lanjutkan menulis bagian isi blog sesuai dengan outline: {{ $json.output }}.\n    - Fokus pada informasi berguna (cara, apa, dan mengapa) yang mendorong pembaca untuk memahami topik tanpa gaya bercerita panjang.\n    - Gunakan kalimat aktif dan hindari bahasa yang rumit seperti ‘menggali lebih dalam’, ‘membongkar secara mendalam’, dan sejenisnya.\n    - Sesuaikan dengan kebutuhan mereka dalam mengelola institusi pendidikan dan transformasi digital.\n\n3. **Gaya dan Format Penulisan**\n    - Gunakan nada dan suara yang konsisten dengan formal namun kasual. Gunakan gaya bahasa **mengalir, engaging, dan tidak terlalu kaku** agar pembaca tetap tertarik.\n    - Setiap bagian harus memiliki **paragraf pembuka yang kuat** dan informasi yang mendalam.\n    - Tambahkan **fakta, contoh, atau data** untuk mendukung poin yang disampaikan.\n    - Gunakan keyword utama dan beberapa variasi LSI keywords (berikan di awal jika memungkinkan).\n        - Judul artikel (mengandung keyword)\n        - Meta description (maks. 160 karakter, mengandung keyword)\n        - Pembukaan (bangun koneksi emosional + jelaskan masalah)\n        - Pembahasan utama (solusi, data, contoh kasus nyata jika ada)\n        - Kesimpulan + CTA (ajakan untuk bertindak)\n    - Gunakan struktur heading: <h2> dan <h3> secara tepat.\n    - Gunakan paragraf pendek dan bullet list jika perlu.\n    - Sertakan internal link placeholder ke halaman/produk Eudeka.id jika relevan.\n    - Sisipkan 1–2 external link ke sumber terpercaya (seperti Kemendikbud, UNESCO, jurnal).\n    - Beri saran gambar yang cocok disisipkan dan alt text-nya.\n    - Panjang artikel minimal 1000 kata.\n    - Optimalkan untuk plugin SEO SmartCrawl, termasuk:\n        - Keyword di judul, meta, paragraf pertama\n        - Readability tinggi\n        - Internal & external linking\n        - CTA jelas di akhir artikel\n        - Hindari menulis kesimpulan. Jika memiliki data atau referensi yang relevan, sertakan untuk menambah nilai bagi pembaca.\n        - Pastikan ada transisi yang **halus antarbagian**, sehingga pembaca dapat mengikuti alur dengan nyaman.\n\n4. **Call to Action:**\n    - Arahkan pembaca untuk:\n    - Mengunjungi halaman layanan/produk Eudeka\n    - Mendaftar pelatihan/webinar\n    - Menghubungi tim Eudeka\n    - Atau tindakan lain yang sesuai\n\n5. **Output yang Diharapkan:**\n    - Model harus menghasilkan **SEBUAH objek JSON tunggal** yang berisi seluruh data artikel.\n    - Objek JSON ini **HARUS memiliki struktur persis** seperti yang didefinisikan dalam `Structured Output Parser` Anda:\n    ```json\n    {\n        \"article\": {\n            \"title\": \"Judul artikel yang dioptimalkan SEO\",\n            \"body_markdown\": \"Isi artikel lengkap dalam format Markdown, dengan semua heading, bullet points, internal/external links, dan CTA sesuai kriteria di atas.\",\n            \"published\": false, // HARUS berupa nilai boolean (true atau false), BUKAN string \"true\" atau \"false\".\n            \"series\": \"nama seri (gunakan null atau string kosong \\\"\\\" jika tidak ada)\",\n            \"main_image\": \"URL gambar yang relevan, valid, dan dapat diakses publik (misalnya [https://example.com/gambar.jpg](https://example.com/gambar.jpg)).\",\n            \"description\": \"meta deskripsi (maks. 160 karakter)\",\n            \"tags\": \"tag1, tag2, tag3 (daftar tag dipisahkan koma)\"\n        }\n    }\n    ```\n    - Pastikan semua informasi yang diminta (judul, meta deskripsi, tag, saran gambar, CTA, links) diintegrasikan dengan benar ke dalam properti yang sesuai di dalam struktur JSON tersebut.\n    - **Tidak ada teks tambahan di luar blok JSON yang dihasilkan.**\n\n6. **Catatan:**\nPantau Duplikasi dan Panjang Konten. Jangan ulangi apa yang sudah ditulis. Gunakan susunan kalimat yang bervariasi.\nGunakan bahasa yang humanistik dan tidak terkesan \"robotik\". Tunjukkan pemahaman terhadap tantangan nyata di dunia pendidikan.\nSetelah tugas pengantar selesai, lanjutkan artikel sesuai panduan di atas. Pastikan setiap bagian mengikuti gaya bahasa dan struktur yang jelas. Fokus untuk mendidik pembaca mengenai topik, bagaimana cara melakukannya, mengapa hal ini penting, dan apa yang harus mereka pahami."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        416,
+        -304
+      ],
+      "id": "6697ef6e-457e-4b3c-8c63-3b1dc412ab95",
+      "name": "Content Generator"
+    },
+    {
+      "parameters": {
+        "jsonSchemaExample": "{\n    \"article\": {\n        \"title\": \"string\",\n        \"body_markdown\": \"string\",\n        \"published\": false,\n        \"series\": \"string\",\n        \"main_image\": \"null\",\n        \"description\": \"string\",\n        \"tags\": \"string\"\n    }\n}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "typeVersion": 1.3,
+      "position": [
+        608,
+        -80
+      ],
+      "id": "983ab284-445f-4361-87ac-8bba92cbc5c1",
+      "name": "Structured Output Parser1"
+    },
+    {
+      "parameters": {
+        "operation": "createFromText",
+        "content": "={{ $json.output.article.body_markdown }}",
+        "name": "AutoBlog",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1gqPfp88n5NzKpbb4oWXejPj7DdMZNBgS",
+          "mode": "list",
+          "cachedResultName": "n8n",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1gqPfp88n5NzKpbb4oWXejPj7DdMZNBgS"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        976,
+        -304
+      ],
+      "id": "41556996-a852-424e-bc37-54c624f2e92b",
+      "name": "Create file from text",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "aP5yTZNPQhPw3phi",
+          "name": "Google Drive account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Topic Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Topic Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Outline Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Content Generator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Topic Generator": {
+      "main": [
+        [
+          {
+            "node": "Outline Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Topic Generator",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Outline Generator": {
+      "main": [
+        [
+          {
+            "node": "Content Generator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Generator": {
+      "main": [
+        [
+          {
+            "node": "Create file from text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser1": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Content Generator",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "968ee3eb-8c76-4694-a704-dcda533bf7c9",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a45fc946de5994fcd2266d8ef9bcdf037401355e640d525186a8d5ee75cec0e3"
+  },
+  "id": "SAptIAfJ0Y7hHLQx",
+  "tags": []
+}

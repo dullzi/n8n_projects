@@ -1,0 +1,276 @@
+{
+  "name": "Schedule to Telegram",
+  "nodes": [
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "daysInterval": 7,
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        0,
+        0
+      ],
+      "id": "d20eee98-829a-455d-993d-61fc108030ab",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "url": "https://api.aladhan.com/v1/timingsByCity?city=Bandung&country=Indonesia&method=1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        208,
+        160
+      ],
+      "id": "9e0b17c5-a2c2-4129-a988-f8863198ec7e",
+      "name": "Jadwal Sholat"
+    },
+    {
+      "parameters": {
+        "url": "https://api.openweathermap.org/data/2.5/weather?q=Bandung&appid=aac9d642f4b1ced1482ab4b84ac14678&units=metric&lang=id",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        208,
+        0
+      ],
+      "id": "b450fc9e-b6f3-4e65-bb61-6aeadd2d333a",
+      "name": "Cuaca"
+    },
+    {
+      "parameters": {
+        "url": "https://api.currencylayer.com/live?access_key=d1d801f4dce20beb3684a5ebc9437b03&currencies=IDR,USD&format=1",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        208,
+        -160
+      ],
+      "id": "1af676cb-96ab-4423-b9b8-7e3da02131b2",
+      "name": "Mata Uang"
+    },
+    {
+      "parameters": {
+        "url": "https://api.coingecko.com/api/v3/simple/price?ids=bitcoin&vs_currencies=usd",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        208,
+        304
+      ],
+      "id": "ad5e0699-0ab3-4f58-aa30-fb8904e01204",
+      "name": "Bitcoin"
+    },
+    {
+      "parameters": {
+        "mode": "combine",
+        "combineBy": "combineByPosition",
+        "numberInputs": 4,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        480,
+        0
+      ],
+      "id": "0b80149d-e7cc-4eaa-b891-8ca1945f2784",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "03499f43-fa13-4476-8fd8-14c582ecf81d",
+              "name": "message",
+              "value": "=Cuaca: {{$json[\"cuaca\"][\"description\"]}} Suhu: {{$json[\"cuaca\"][\"temp\"]}}°C Sholat Subuh: {{$json[\"jadwal_sholat\"][\"Fajr\"]}} BTC: {{$json[\"bitcoin\"][\"USD\"]}} Kurs USD/IDR: {{$json[\"mata_uang\"][\"IDR\"]}}",
+              "type": "string"
+            }
+          ]
+        },
+        "includeOtherFields": true,
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        688,
+        0
+      ],
+      "id": "eed501b1-009e-4039-8d02-bc1965319965",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "chatId": "6086526048",
+        "text": "=Selamat pagi! 🌞  \nBerikut laporan informasi untuk hari ini:  \n\n📍 **Cuaca Bandung**  \n• Kondisi: {{$node[\"Cuaca\"].json[\"weather\"][0][\"description\"]}}  \n• Suhu: {{$node[\"Cuaca\"].json[\"main\"][\"temp\"]}}°C  \n\n🕌 **Jadwal Sholat**  \n• Subuh:  {{ $json.data.timings.Fajr }}\n• Dzuhur:  {{ $json.data.timings.Dhuhr }}\n• Ashar:  {{ $json.data.timings.Asr }}\n• Maghrib: {{ $json.data.timings.Maghrib }}\n• Isya: {{ $json.data.timings.Isha }}\n\n💱 Kurs Mata Uang (USD → IDR)  \n• Rp  {{ $('Mata Uang').item.json.quotes.USDIDR.toLocaleString(\"id-ID\") }}\n\n💹 Harga Bitcoin Saat Ini\n• USD {{ $node[\"Bitcoin\"].json[\"bitcoin\"][\"usd\"].toLocaleString(\"id-ID\") }}\n\nSemoga hari Anda penuh keberkahan dan kelancaran. 🌟\n",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        -96
+      ],
+      "id": "c3973833-93a2-44bf-ba6b-2c33fbeae853",
+      "name": "Send a text message private",
+      "webhookId": "bb7ce459-092a-47d3-b878-36979960f18c",
+      "credentials": {
+        "telegramApi": {
+          "id": "kjlrEw1twEPfWc5P",
+          "name": "Telegram account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "-4944838163",
+        "text": "=Selamat pagi! 🌞  \nBerikut laporan informasi untuk hari ini:  \n\n📍 **Cuaca Bandung**  \n• Kondisi: {{$node[\"Cuaca\"].json[\"weather\"][0][\"description\"]}}  \n• Suhu: {{$node[\"Cuaca\"].json[\"main\"][\"temp\"]}}°C  \n\n🕌 **Jadwal Sholat**  \n• Subuh:  {{ $json.data.timings.Fajr }}\n• Dzuhur:  {{ $json.data.timings.Dhuhr }}\n• Ashar:  {{ $json.data.timings.Asr }}\n• Maghrib: {{ $json.data.timings.Maghrib }}\n• Isya: {{ $json.data.timings.Isha }}\n\n💱 Kurs Mata Uang (USD → IDR)  \n• Rp  {{ $('Mata Uang').item.json.quotes.USDIDR.toLocaleString(\"id-ID\") }}\n\n💹 Harga Bitcoin Saat Ini\n• USD {{ $node[\"Bitcoin\"].json[\"bitcoin\"][\"usd\"].toLocaleString(\"id-ID\") }}\n\nSemoga hari Anda penuh keberkahan dan kelancaran. 🌟\n",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        880,
+        160
+      ],
+      "id": "affa0ea8-6335-497e-b1ff-8c580420c5b2",
+      "name": "Send a text message group",
+      "webhookId": "bb7ce459-092a-47d3-b878-36979960f18c",
+      "credentials": {
+        "telegramApi": {
+          "id": "kjlrEw1twEPfWc5P",
+          "name": "Telegram account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Cuaca",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Jadwal Sholat",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Mata Uang",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Bitcoin",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cuaca": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Jadwal Sholat": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Bitcoin": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Mata Uang": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Send a text message private",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send a text message group",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "a4425153-c600-449f-ac54-9bfebb553cd7",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a45fc946de5994fcd2266d8ef9bcdf037401355e640d525186a8d5ee75cec0e3"
+  },
+  "id": "Pm9F7I3k8et1rD0y",
+  "tags": []
+}

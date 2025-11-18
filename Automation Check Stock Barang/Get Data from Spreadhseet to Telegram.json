@@ -1,0 +1,178 @@
+{
+  "name": "Get Data from Spreadhseet to Telegram",
+  "nodes": [
+    {
+      "parameters": {
+        "documentId": {
+          "__rl": true,
+          "value": "1z6s97rD85r8x7jzfvTodMVyHsNW3in6GUS9c99Bp5o4",
+          "mode": "list",
+          "cachedResultName": "Inventory",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1z6s97rD85r8x7jzfvTodMVyHsNW3in6GUS9c99Bp5o4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": "gid=0",
+          "mode": "list",
+          "cachedResultName": "Sheet1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1z6s97rD85r8x7jzfvTodMVyHsNW3in6GUS9c99Bp5o4/edit#gid=0"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        -256,
+        0
+      ],
+      "id": "06aad3d7-9b97-40ef-a1be-3149ca28cfe4",
+      "name": "Get row(s) in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "qNhCtckjjIVTB4Ny",
+          "name": "Google Sheets account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "daysInterval": 6,
+              "triggerAtHour": 19
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -432,
+        0
+      ],
+      "id": "22fe9561-3b8f-4d26-bae0-c4afe7c46633",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "chatId": "6086526048",
+        "text": "=⚠️ Update Inventory Barang Hari ini\n",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        368,
+        -112
+      ],
+      "id": "32b35375-aba3-4df8-b43e-b601ec2903c7",
+      "name": "Send a text message",
+      "webhookId": "64a93780-88f5-4c24-bd05-43b401095589",
+      "credentials": {
+        "telegramApi": {
+          "id": "dUMe6i0V5Jb5mjsW",
+          "name": "Inventory"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Ambil semua data dari node sebelumnya\nconst allItems = $input.all();\n\n// Cek apakah ada barang dengan stok kurang dari minimal stok\nlet criticalStockItems = [];\n\nfor (const item of allItems) {\n  const stock = Number(item.json?.[\"Stock\"] ?? 0);\n  const minStock = Number(item.json?.[\"Min. Stock\"] ?? 0); // Mengambil nilai dari kolom 'Min. Stock'\n\n  if (stock <= minStock) {\n    criticalStockItems.push(item);\n  }\n}\n\nlet message = \"\";\nif (criticalStockItems.length > 0) {\n  // Jika ada barang dengan stok kurang dari minimal\n  message += \"🚨 *PERINGATAN STOK KRITIS* 🚨\\n\";\n  message += \"Barang-barang berikut memiliki stok kurang dari batas minimal. Mohon segera lakukan pemesanan ulang.\\n\\n\";\n  \n  message += `ID\\t| Barang\\t\\t| Stok\\t| Min Stok\\n`;\n  message += `----------------------------------------\\n`;\n\n  for (const item of criticalStockItems) {\n    const stock = Number(item.json?.[\"Stock\"] ?? 0);\n    const minStock = Number(item.json?.[\"Min. Stock\"] ?? 0);\n\n    message += `${item.json.ID}\\t| ${item.json.Barang}\\t| ${stock}\\t| ${minStock}\\n`;\n  }\n  message += `----------------------------------------\\n`;\n  \n} else {\n  // Jika tidak ada barang dengan stok kurang dari minimal\n  message += \"✅ Semua stok barang saat ini aman. Tidak ada barang yang perlu di-restock.\";\n}\n\nreturn [{\n  json: {\n    message: message\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -48,
+        0
+      ],
+      "id": "4496640f-42d2-4d77-a8b4-87dff05f2f7e",
+      "name": "Code"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "1311db65-7e38-4064-b856-3f4c03560c56",
+              "leftValue": "={{ $json.Stock }}",
+              "rightValue": 5,
+              "operator": {
+                "type": "number",
+                "operation": "lt"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        224,
+        96
+      ],
+      "id": "dcf69c1f-08b8-4557-a51c-ed94c1a81e4e",
+      "name": "If"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        []
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "fb7fa98c-fad1-4bd5-ab7f-a798fd6e21cf",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a45fc946de5994fcd2266d8ef9bcdf037401355e640d525186a8d5ee75cec0e3"
+  },
+  "id": "LQwu07m7D8ZJdHkK",
+  "tags": []
+}

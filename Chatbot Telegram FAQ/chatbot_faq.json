@@ -1,0 +1,477 @@
+{
+  "name": "Chatbot Faq Telegram",
+  "nodes": [
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "contextWindowLength": 15
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        -2032,
+        128
+      ],
+      "id": "76c1fa9a-be7a-4f17-8320-716f480def82",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "options": {
+          "timezone": "Asia/Jakarta"
+        }
+      },
+      "type": "n8n-nodes-base.dateTimeTool",
+      "typeVersion": 2,
+      "position": [
+        -32,
+        592
+      ],
+      "id": "ecce4c85-2e5d-4623-98a4-e7e7401e2dd8",
+      "name": "Date & Time"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "1lNNQX5HXDQUjLPI6_auHaf9CX7X--pvF",
+          "mode": "list",
+          "cachedResultName": "PERATURAN SEKOLAH DAN PERPUSTAKAAN.txt",
+          "cachedResultUrl": "https://drive.google.com/file/d/1lNNQX5HXDQUjLPI6_auHaf9CX7X--pvF/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        -672,
+        256
+      ],
+      "id": "b2123655-1d4a-4da1-b3a6-a15284204223",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "KANphbmzTv7hbYre",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        -1264,
+        416
+      ],
+      "id": "6ddce1bd-7c27-4f47-85f0-a5b468450a98",
+      "name": "Telegram Trigger1",
+      "webhookId": "429baaa7-ed30-4102-8956-1b200e724c84",
+      "credentials": {
+        "telegramApi": {
+          "id": "SutKe2WpmeKv3liZ",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "=Berikut adalah teks peraturan sekolah dan perpustakaan:\n\n{{ $('Extract from File').item.json.content }}\n\nPertanyaan pengguna: \"{{ $('Telegram Trigger1').item.json.message.text }}\"\n\nInstruksi:\n- Jawablah dengan bahasa Indonesia formal.\n- Jika aturan ada di dokumen, sebutkan pasal/nomornya terlebih dahulu (contoh: \"Lihat Pasal 8.1 tentang Pelanggaran Ringan\").\n- Gunakan format bullet (-) untuk setiap poin hukuman atau aturan.\n- Jangan meringkas terlalu pendek, uraikan sesuai isi dokumen.\n- Gunakan baris baru (newline) agar jawaban mudah dibaca di Telegram.\n- Jika tidak ditemukan aturan yang relevan, jawab dengan sopan bahwa informasi tidak tercantum di aturan, lalu beri saran umum (misalnya hubungi guru, staf sekolah, atau petugas perpustakaan).\n- **Catatan penting: Jika di teks terdapat penomoran (misalnya 1.1, 2.1, 8.1) atau bullet asli (-), pertahankan nomor/bullet tersebut dalam jawaban. Jangan hapus atau ubah format penomoran yang ada.**\n\nContoh format jawaban yang diharapkan:\nBerdasarkan Peraturan Sekolah, jika siswa terlambat datang ke sekolah, sanksi yang akan diberikan termasuk dalam kategori Pelanggaran Ringan (Lihat Pasal 8.1. Tingkat 1: Pelanggaran Ringan). Hukuman yang mungkin diterima adalah:\n\n- Teguran Lisan: Peringatan langsung dari guru atau wali kelas.\n- Pencatatan Poin: Dicatat dalam buku poin pelanggaran.\n- Tugas Tambahan: Diberi tugas tambahan yang relevan.\n- Panggilan Orang Tua: Jika pelanggaran ini berulang.\n",
+        "options": {
+          "systemMessage": "=Kamu adalah asisten virtual sekolah yang bertugas menjawab pertanyaan siswa berdasarkan dokumen peraturan sekolah dan perpustakaan. Fokus pada:\n\nTata tertib sekolah\n\nKedisiplinan\n\nPeraturan umum\n\nAturan perpustakaan\n\nHukuman disipliner\n\nLarangan yang ada di dokumen\n\nKamu adalah asisten virtual sekolah yang bertugas menjawab pertanyaan berdasarkan dokumen peraturan sekolah dan perpustakaan. Fokuslah pada tata tertib, kedisiplinan, peraturan umum, aturan perpustakaan, hukuman disipliner, dan larangan yang ada di dokumen. Jika pertanyaan pengguna sesuai dengan isi dokumen, berikan jawaban dengan merujuk langsung pada aturan atau pasal terkait. Jika pertanyaan tidak ada di dokumen, berikan jawaban umum dengan tetap menjaga konteks sebagai asisten sekolah, misalnya dengan menyarankan untuk bertanya kepada guru, petugas perpustakaan, atau staf sekolah. jawaban Anda adalah seorang guru yang ramah dan sabar. Tugas Anda adalah menjelaskan peraturan sekolah kepada siswa yang bertanya. Gunakan bahasa yang sederhana, mudah dimengerti, dan selalu sertakan emoji untuk membuat suasana lebih santai. Jangan pernah memberikan jawaban yang kasar atau terlalu formal. Jika pertanyaan tidak relevan dengan peraturan sekolah, tolong berikan jawaban yang sopan dan mengarahkan kembali pertanyaan ke topik yang benar. Pertanyaan siswa: {{ $('Telegram Trigger1').item.json.message.text }} Kamu adalah seorang guru yang ramah dan sabar, bertugas sebagai asisten virtual sekolah. Tugas utama Anda adalah menjawab pertanyaan yang berkaitan dengan peraturan sekolah dan perpustakaan. Kamu memiliki akses ke beberapa tools: - baca_aturan_sekolah: Tool untuk mencari dan membaca informasi dari dokumen peraturan sekolah. - serp_api_search: Tool untuk mencari informasi di internet. Patuhi aturan berikut: 1. Prioritaskan penggunaan baca_aturan_sekolah untuk setiap pertanyaan yang berhubungan dengan sekolah. 2. Jika pertanyaan tidak dapat dijawab dari dokumen peraturan sekolah (yaitu, pertanyaan melenceng dari topik), gunakan serp_api_search untuk mencari jawaban. 3. Jawab pertanyaan yang menggunakan serp_api_search secara singkat dan padat. 4. Jika kamu menggunakan serp_api_search, di akhir jawaban, tambahkan catatan (notes) berikut: \"Notes: Mohon berikan pertanyaan yang lebih spesifik terkait peraturan sekolah atau perpustakaan, terima kasih.\" 5. Jaga nada bicara tetap ramah, sopan, dan sederhana, seperti seorang guru kepada siswanya."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -288,
+        256
+      ],
+      "id": "1d21fee3-1e15-448f-b7cd-5063cb4d0d10",
+      "name": "AI Agent1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        -432,
+        464
+      ],
+      "id": "e0ee596e-5bf5-4c4e-83f6-29eeeb241bde",
+      "name": "Google Gemini Chat Model1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "lYmyUUhbTrj7SKpe",
+          "name": "Google Gemini Api account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "text",
+        "destinationKey": "content",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1,
+      "position": [
+        -480,
+        256
+      ],
+      "id": "68f96b0e-d232-4993-a54f-ff2c20e09d3c",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -2048,
+        256
+      ],
+      "id": "32ece33c-329e-48d7-91ba-7e5c3a10a2db",
+      "name": "When chat message received",
+      "webhookId": "9052fca2-42d0-408e-9ec9-85db19f99afa",
+      "disabled": true
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{$json[\"message\"][\"text\"]}}",
+                    "rightValue": "minta file peraturan",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "id": "5d4792a6-a269-495f-89b6-a8e1676a0829"
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "minta file"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "9b5aa90f-1d1a-4c43-ad8a-c2d1429a2c0f",
+                    "leftValue": "={{$json[\"message\"][\"photo\"] || $json[\"message\"][\"document\"]}}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "object",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "bukan teks"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        -2048,
+        416
+      ],
+      "id": "1e21988a-a4ee-4df4-973c-74b064a6bf75",
+      "name": "Switch"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
+            {
+              "id": "f9072e29-3850-4bb8-a490-37624e2dfc52",
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": "",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        -1104,
+        416
+      ],
+      "id": "eb15290e-9ac8-4aad-89e8-df38429160db",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.toolSerpApi",
+      "typeVersion": 1,
+      "position": [
+        -224,
+        592
+      ],
+      "id": "52c6e8be-82dd-4863-8998-1d818e4d00e3",
+      "name": "SerpAPI1",
+      "credentials": {
+        "serpApi": {
+          "id": "c4IaJqcee785StaJ",
+          "name": "SerpAPI account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger1').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        32,
+        256
+      ],
+      "id": "ce8acfca-0c79-4c3d-b6e2-a81d86e53df5",
+      "name": "Send a Result Ai",
+      "webhookId": "9e9a2bb4-9111-4211-9e6e-ec0ed46e50f9",
+      "credentials": {
+        "telegramApi": {
+          "id": "SutKe2WpmeKv3liZ",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "sendChatAction",
+        "chatId": "={{$json[\"message\"][\"chat\"][\"id\"]}}"
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -848,
+        256
+      ],
+      "id": "998a903c-7efd-49f4-aedb-4cc3e69b75cd",
+      "name": "Action Typing",
+      "webhookId": "a2365861-b250-4a78-a44d-668858ff0c29",
+      "credentials": {
+        "telegramApi": {
+          "id": "SutKe2WpmeKv3liZ",
+          "name": "Telegram account 2"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $json.message.chat.id }}",
+        "text": "=Saat ini, bot ini dirancang khusus untuk membaca dan menanggapi pertanyaan atau perintah yang Anda ketik. Adapun data dalam bentuk gambar, dokumen, atau stiker tidak bisa saya pahami.\n\nUntuk mendapatkan jawaban, mohon ketik pertanyaan atau perintah Anda dalam format teks. Saya siap membantu setelah itu!",
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        -864,
+        576
+      ],
+      "id": "db6c069e-b685-4634-9640-34130e181d82",
+      "name": "Reply if message not text",
+      "webhookId": "9e9a2bb4-9111-4211-9e6e-ec0ed46e50f9",
+      "credentials": {
+        "telegramApi": {
+          "id": "SutKe2WpmeKv3liZ",
+          "name": "Telegram account 2"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Simple Memory": {
+      "ai_memory": [
+        []
+      ]
+    },
+    "Date & Time": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Telegram Trigger1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent1": {
+      "main": [
+        [
+          {
+            "node": "Send a Result Ai",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        []
+      ]
+    },
+    "Switch": {
+      "main": [
+        [],
+        [],
+        [],
+        []
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Action Typing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reply if message not text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SerpAPI1": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent1",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a Result Ai": {
+      "main": [
+        []
+      ]
+    },
+    "Action Typing": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "da92a9d7-0972-4c66-9a66-ffe40665b1a0",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "b50c0987f2bcbc6b4c7d1a64261b18429e1f2e132c9a079eab7bcd798c17a45a"
+  },
+  "id": "Xd1C5sLskw4kq7R8",
+  "tags": []
+}
